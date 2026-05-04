@@ -4,11 +4,40 @@
 
 
     <article class="post">
+        {% if user.is_authenticated %}
+            <aside class="actions">
+                <a class="btn btn-secondary date" href="{% url 'post_edit' pk=post.pk %}">
+                    {% include './icons/pencil-fill.svg' %}
+                </a>
+                <form method="POST" action="{% url 'post_remove' pk=post.pk %}" class="post-form">{% csrf_token %}
+                    <button type="submit" class="save btn btn-secondary" name="remove">Delete</button>
+                </form>
+            </aside>
+        {% endif %}
+
         {% if post.published_date %}
             <time class="date">{{ post.published_date }}</time>
+        {% else %}
+            <form method="POST" action="{% url 'post_publish' pk=post.pk %}" class="post-form">{% csrf_token %}
+                <button type="submit" class="save btn btn-secondary" name="publish">Publish</button>
+            </form>
         {% endif %}
+
         <h2><a href="{% url 'post_detail' pk=post.pk %}">{{ post.title }}</a></h2>
+
         <p>{{ post.text|linebreaksbr }}</p>
     </article>
+
+    <hr>
+    <a class="btn btn-secondary" role="button" href="{% url 'add_comment_to_post' pk=post.pk %}">Add comment</a>
+    {% for comment in post.comments.all %}
+        <div class="comment">
+            <time class="date">{{ comment.created_date }}</time>
+            <strong>{{ comment.author }}</strong>
+            <p>{{ comment.text|linebreaksbr }}</p>
+        </div>
+    {% empty %}
+        <p>No comments here yet!</p>
+    {% endfor %}
 
 {% endblock %}
